@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoIP</title>
+  <meta name="description" content="Geospatial intelligence and phone number analysis suite." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.13.12/bundle/libphonenumber-max.js"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="config.js"></script>
+  <script src="country-reference.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="rail">
+      <div class="brand-mark" aria-label="GeoIP OSINT"><span class="pin-symbol">⌖</span><span class="brand-crosshair">⊕</span></div>
+      <div class="rail-line"></div>
+      <nav aria-label="Main navigation">
+        <button class="rail-button active" data-tab="signal-recon" onclick="switchTab('signal-recon')" title="IP signal reading">⊕</button>
+        <button class="rail-button" data-tab="phone-recon" onclick="switchTab('phone-recon')" title="Phone Recon">Tel</button>
+      </nav>
+      <div class="rail-bottom">
+        <button class="rail-button" id="theme-button" title="Toggle theme">☼</button>
+        <div class="avatar">GO</div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow"><span class="status-dot active"></span> GEOIP SIGNAL // INTELLIGENCE NODE</p>
+          <h1>Locate the signal. <span>Read the context.</span></h1>
+        </div>
+        <div class="topbar-meta">
+          <span class="live-indicator">⌁ SYSTEM ONLINE</span>
+          <span class="clock" id="searched-at">Awaiting query</span>
+        </div>
+      </header>
+
+      <!-- TAB 1: SIGNAL RECON (GEOIP / GPS) -->
+      <section id="signal-recon" class="tab-content active">
+        <section class="command-strip" aria-label="IP query">
+          <div class="command-label">◉ <span>Set target</span></div>
+          <form class="lookup-form" id="lookup-form">
+            <span class="input-icon">⌕</span>
+            <input id="ip-input" type="text" placeholder="Enter an IPv4 or IPv6 address" aria-label="IP address" />
+            <button id="lookup-button" type="submit">RUN READING <span>↗</span></button>
+          </form>
+          <button id="gps-button" type="button" class="gps-btn" title="Use device GPS">GPS ⌖</button>
+          <span class="hint">PRESS ENTER TO QUERY</span>
+        </section>
+
+        <div class="content-grid">
+          <section class="map-column">
+            <div class="section-heading">
+              <div><p class="eyebrow">LOCATION SURFACE // 01</p><h2>Context map</h2></div>
+              <div class="map-tools"><span id="map-status"><span class="status-dot"></span> CONFIGURE MAP</span><span>◎ HYBRID</span></div>
+            </div>
+            <div class="map-frame">
+              <div class="map-backdrop"></div>
+              <div id="map" class="map-view"></div>
+              <div class="map-overlay top-left"><span class="micro-label">TARGET COORDINATES</span><strong id="target-coordinates">NO SIGNAL</strong></div>
+              <div class="map-overlay bottom-right"><span class="status-dot"></span><span>SIGNAL VISUALIZED</span></div>
+            </div>
+            <div class="street-panel">
+              <div class="street-title">
+                <div><p class="eyebrow">VISUAL VERIFICATION // 02</p><h3>Read the nearest street</h3></div>
+                <span class="availability" id="street-availability"><span class="status-dot"></span> AWAITING TARGET</span>
+              </div>
+              <div class="pano-frame">
+                <div id="pano" class="pano-view"></div>
+                <div id="pano-empty" class="pano-empty"><span class="pano-icon">◎</span><span>Run a reading to find the nearest street within 100 m</span></div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="evidence-column">
+            <div class="section-heading compact">
+              <div><p class="eyebrow">SIGNAL DOSSIER // PRIORITY</p><h2>Target evidence</h2></div>
+              <button class="icon-button" id="copy-button" title="Copy IP">▣</button>
+            </div>
+            <div class="primary-evidence">
+              <div class="evidence-kicker">◈ NETWORK IDENTITY <span>CURRENT</span></div>
+              <div class="ip-display"><span id="target-ip">—</span><button id="copy-ip-button" aria-label="Copy IP">▣</button></div>
+              <p class="location-line" id="target-location">⌖ No target queried</p>
+            </div>
+            <div class="data-card"><div class="card-title"><span>ESTIMATED LOCATION</span><span>⌖</span></div><div id="geo-data"></div></div>
+            <div class="data-card"><div class="card-title"><span>PROVIDER AND ASN</span><span>⌘</span></div><div id="network-data"></div></div>
+            <div class="signal-footer">
+              <div class="signal-icon">◉</div>
+              <div><strong>Context confidence</strong><p>Approximate data from IP geolocation / device GPS.</p></div>
+              <span class="confidence" id="confidence">—</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- TAB 2: PHONE RECON -->
+      <section id="phone-recon" class="tab-content">
+        <div class="command-strip phone-command" style="margin-bottom: 24px;">
+          <div class="command-label">T<span>Phone Number Analysis</span></div>
+          <div class="lookup-form" style="width: 100%;">
+            <input type="tel" id="phone-input"
+              placeholder="Any country: +55 11 99999-9999 · +1 202 555 0123 · +44 20 7946 0958"
+              autocomplete="off" inputmode="tel"
+              aria-label="Phone number" />
+            <button id="btn-search-phone" type="button">RUN READING <span>↗</span></button>
+          </div>
+        </div>
+
+        <p class="phone-disclaimer">
+          Enter a complete international number with <strong>+country code</strong> (or 00 + country code). Analysis is global and
+          the map updates automatically as you type. Location is based on the numbering plan:
+          Brazilian area codes use a regional reference; in other countries, the reference is
+          national. This does not reveal the device's current position. Exact location requires an
+          authorized device-location service.
+        </p>
+
+        <div id="phone-results" class="phone-results" hidden>
+          <div class="phone-map-column">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">LOCATION SURFACE // PHONE</p>
+                <h2>Region associated with the number</h2>
+              </div>
+              <div class="map-tools"><span id="phone-map-status"><span class="status-dot"></span> AWAITING</span></div>
+            </div>
+
+            <div class="map-frame phone-map-frame">
+              <div class="map-backdrop"></div>
+              <div id="phone-map" class="map-view"></div>
+              <div class="map-overlay top-left">
+                <span class="micro-label">ESTIMATED COORDINATES</span>
+                <strong id="res-coordinates">NO DATA</strong>
+              </div>
+              <div class="map-overlay bottom-right">
+                <span class="status-dot"></span><span>NUMBERING AREA</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="evidence-column">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">PHONE DOSSIER</p>
+                <h2>Number identification</h2>
+              </div>
+              <button class="icon-button" id="copy-phone-button" title="Copy number">▣</button>
+            </div>
+
+            <div class="primary-evidence">
+              <div class="evidence-kicker">◈ PHONE IDENTITY <span id="phone-status-badge">OK</span></div>
+              <div class="ip-display phone-display">
+                <span id="res-e164">—</span>
+              </div>
+              <p class="location-line"><span class="location-pin">⌖</span> <span id="res-location">No region identified</span></p>
+            </div>
+
+            <div class="data-card">
+              <div class="card-title"><span>VALIDATION AND NUMBERING</span><span>✓</span></div>
+              <div class="data-row"><span>International format:</span><strong id="res-international">—</strong></div>
+              <div class="data-row"><span>Country / code:</span><strong id="res-country">—</strong></div>
+              <div class="data-row"><span>Line type:</span><strong id="res-type">—</strong></div>
+              <div class="data-row"><span>Extension:</span><strong id="res-extension">—</strong></div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-title"><span>REGIONALIZATION</span><span>⌖</span></div>
+              <div class="data-row"><span>State / region:</span><strong id="res-state">—</strong></div>
+              <div class="data-row"><span>City / area:</span><strong id="res-city">—</strong></div>
+              <div class="data-row"><span>Postal code:</span><strong id="res-phone-zip">—</strong></div>
+              <div class="data-row"><span>Time zone:</span><strong id="res-tz">—</strong></div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-title"><span>COORDINATES</span><span>◎</span></div>
+              <div class="data-row"><span>Latitude:</span><strong id="res-lat">—</strong></div>
+              <div class="data-row"><span>Longitude:</span><strong id="res-lon">—</strong></div>
+              <div class="data-row"><span>Precision:</span><strong id="res-precision">—</strong></div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-title"><span>CARRIER / EXTERNAL SOURCE</span><span>⌘</span></div>
+              <div class="data-row"><span>Carrier:</span><strong id="res-carrier">Not available</strong></div>
+              <div class="data-row"><span>Source:</span><strong id="res-source">Local numbering</strong></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <footer class="footer-line">
+        <span>GEOIP // STREET VIEW OSINT</span>
+        <span>Source: ipwho.is · OpenStreetMap · Google Maps</span>
+        <span>Responsible and investigative use</span>
+      </footer>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>
