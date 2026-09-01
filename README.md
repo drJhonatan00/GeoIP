@@ -9,6 +9,9 @@ GeoIP is a standalone front-end application that combines **IP geolocation**, **
 
 The interface is intentionally designed for investigation, verification, and research workflows. It does **not** claim to reveal the live location of a phone from its number alone.
 
+<img width="2152" height="857" alt="1000032703" src="https://github.com/user-attachments/assets/d0fc9c2e-6981-4e2a-b018-331c53fd1c1d" />
+
+
 ---
 
 ## Contents
@@ -24,7 +27,6 @@ The interface is intentionally designed for investigation, verification, and res
 - [Project structure](#project-structure)
 - [Deployment](#deployment)
 - [Limitations](#limitations)
-- [License](#license)
 
 ---
 
@@ -42,6 +44,9 @@ The interface is intentionally designed for investigation, verification, and res
 | **Privacy-aware defaults** | The phone workflow uses the country code locally and does not send the full number to a third-party phone API unless an authorized endpoint is explicitly configured. |
 | **Standalone delivery** | Runs as a static site with no build step, backend, or package installation required. |
 
+<img width="2120" height="899" alt="1000032706" src="https://github.com/user-attachments/assets/fe2dafc5-1556-4696-b0be-4d607110cf10" />
+
+
 ---
 
 ## How it works
@@ -58,6 +63,9 @@ The application has two independent investigation surfaces.
 4. Otherwise, the application uses a bundled country-reference coordinate.
 5. The result panel and OpenStreetMap reference map update automatically after the input settles.
 6. If configured, an authorized external phone endpoint may supply additional metadata such as carrier, city, state, postal code, timezone, or coordinates.
+
+<img width="2114" height="896" alt="1000032708" src="https://github.com/user-attachments/assets/44f65616-4d28-4eec-ada6-64b150c1093d" />
+
 
 ---
 
@@ -149,7 +157,7 @@ IP geolocation is inherently approximate. VPNs, proxies, mobile networks, corpor
 
 | Source | Used for | Network request |
 |---|---|---|
-| [`libphonenumber-js`][1] | Phone parsing, formatting, country recognition, possible/valid checks, and line-type detection. | CDN-loaded in the browser. |
+| `libphonenumber-js`| Phone parsing, formatting, country recognition, possible/valid checks, and line-type detection. | CDN-loaded in the browser. |
 | Bundled country reference | Country and territory reference coordinates. | No runtime request. |
 | `ipwho.is` | Public IP geolocation and network metadata. | Direct browser request during an IP lookup. |
 | OpenStreetMap Nominatim | Reverse geocoding for browser GPS results. | Direct browser request after GPS permission. |
